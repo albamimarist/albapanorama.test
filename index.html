@@ -1,0 +1,1986 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML OS</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            height: 100vh;
+            overflow: hidden;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+        
+        /* Animasyonlu Saat Ekranı */
+        .welcome-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1500;
+            color: white;
+            font-size: 5rem;
+            animation: fadeOut 2s forwards 3s;
+        }
+        
+        @keyframes fadeOut {
+            to { opacity: 0; visibility: hidden; }
+        }
+        
+        .welcome-time {
+            font-size: 8rem;
+            margin-bottom: 20px;
+            animation: pulse 1s infinite alternate;
+        }
+        
+        .welcome-date {
+            font-size: 2rem;
+            opacity: 0.8;
+        }
+        
+        @keyframes pulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.05); }
+        }
+        
+        /* Masaüstü Yapısı */
+        .desktop {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Taskbar */
+        .taskbar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 48px;
+            background: rgba(32, 32, 32, 0.85);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            z-index: 1000;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .start-btn {
+            height: 100%;
+            padding: 0 12px;
+            display: flex;
+            align-items: center;
+            color: white;
+            cursor: pointer;
+        }
+        
+        .start-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .start-btn img {
+            height: 24px;
+            margin-right: 8px;
+        }
+        
+        .taskbar-apps {
+            display: flex;
+            height: 100%;
+        }
+        
+        .taskbar-app {
+            height: 100%;
+            padding: 0 12px;
+            display: flex;
+            align-items: center;
+            color: white;
+            cursor: pointer;
+            font-size: 0.85rem;
+            border-bottom: 2px solid transparent;
+        }
+        
+        .taskbar-app:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .taskbar-app.active {
+            border-bottom: 2px solid #5fa8f3;
+        }
+        
+        .taskbar-app img {
+            height: 24px;
+            margin-right: 8px;
+        }
+        
+        .system-tray {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+            color: white;
+            font-size: 0.85rem;
+            margin-left: auto;
+        }
+        
+        .tray-icon {
+            padding: 5px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .tray-icon:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .weather-info {
+            padding: 5px;
+            color: white;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .weather-icon {
+            height: 24px;
+            width: 24px;
+        }
+        
+        /* Başlat Menüsü */
+        .start-menu {
+            position: fixed;
+            bottom: 60px;
+            left: 10px;
+            width: 300px;
+            max-height: 400px;
+            background: rgba(32, 32, 32, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 8px 8px 0 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            display: none;
+            flex-direction: column;
+            z-index: 1001;
+            overflow: hidden;
+        }
+        
+        .start-menu.visible {
+            display: flex;
+        }
+        
+        .start-menu-header {
+            padding: 10px 15px;
+            background: rgba(0, 0, 0, 0.2);
+            color: white;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .start-menu-header img {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+        }
+        
+        .start-menu-list {
+            flex: 1;
+            padding: 10px;
+            overflow-y: auto;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+        
+        .start-menu-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 5px;
+            color: white;
+        }
+        
+        .start-menu-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .start-menu-item img {
+            width: 32px;
+            height: 32px;
+            margin-bottom: 5px;
+        }
+        
+        .start-menu-item span {
+            font-size: 0.7rem;
+            text-align: center;
+        }
+        
+        /* Uygulama Kısayolları */
+        .desktop-icons {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, 80px);
+            gap: 20px;
+            padding: 20px;
+            align-content: start;
+        }
+        
+        .app-icon {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.2s;
+            padding: 5px;
+            border-radius: 5px;
+            user-select: none;
+        }
+        
+        .app-icon:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: scale(1.05);
+        }
+        
+        .app-icon img {
+            width: 40px;
+            height: 40px;
+            margin-bottom: 5px;
+            object-fit: contain;
+        }
+        
+        .app-icon span {
+            text-align: center;
+            color: white;
+            font-size: 0.75rem;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+        }
+        
+        /* Uygulama Pencereleri */
+        .app-window {
+            position: absolute;
+            min-width: 400px;
+            min-height: 300px;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            border-radius: 8px 8px 0 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            overflow: hidden;
+            resize: both;
+        }
+        
+        .app-window.active {
+            z-index: 10;
+        }
+        
+        .app-window.maximized {
+            width: 100% !important;
+            height: calc(100% - 48px) !important;
+            top: 0 !important;
+            left: 0 !important;
+            resize: none;
+            border-radius: 0;
+        }
+        
+        .app-header {
+            height: 32px;
+            background: #f3f3f3;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 10px;
+            cursor: move;
+            user-select: none;
+        }
+        
+        .app-title {
+            flex: 1;
+            padding-left: 5px;
+            font-size: 0.85rem;
+            color: #333;
+        }
+        
+        .window-controls {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .window-btn {
+            width: 22px;
+            height: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 0.8rem;
+            color: #333;
+            border-radius: 2px;
+        }
+        
+        .window-btn:hover {
+            background: rgba(0, 0, 0, 0.1);
+        }
+        
+        .close-btn:hover {
+            background: #e81123;
+            color: white;
+        }
+        
+        .app-content {
+            flex: 1;
+            overflow: auto;
+        }
+        
+        /* Denetim Masası */
+        .control-panel {
+            width: 100%;
+            height: 100%;
+            display: flex;
+        }
+        
+        .control-sidebar {
+            width: 200px;
+            background: #f5f5f5;
+            border-right: 1px solid #ddd;
+        }
+        
+        .control-menu-item {
+            padding: 12px 15px;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .control-menu-item:hover {
+            background: #e9e9e9;
+        }
+        
+        .control-menu-item.active {
+            background: #0078d7;
+            color: white;
+        }
+        
+        .control-content {
+            flex: 1;
+            padding: 20px;
+            overflow: auto;
+        }
+        
+        /* Uygulama Yönetimi */
+        .app-manager {
+            display: none;
+        }
+        
+        .app-manager.active {
+            display: block;
+        }
+        
+        .app-form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .form-group label {
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        .form-group input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .btn-primary {
+            background-color: #0078d7;
+            color: white;
+        }
+        
+        .btn-danger {
+            background-color: #e81123;
+            color: white;
+        }
+        
+        .btn-secondary {
+            background-color: #e0e0e0;
+        }
+        
+        .app-list {
+            margin-bottom: 20px;
+        }
+        
+        .app-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+        }
+        
+        .app-item:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .app-item img {
+            width: 32px;
+            height: 32px;
+            margin-right: 10px;
+        }
+        
+        /* Arka Plan Yönetimi */
+        .wallpaper-manager {
+            display: none;
+        }
+        
+        .wallpaper-manager.active {
+            display: block;
+        }
+        
+        .wallpaper-options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .wallpaper-preview {
+            width: 100%;
+            height: 200px;
+            background-size: cover;
+            background-position: center;
+            border: 1px solid #ddd;
+            margin-bottom: 15px;
+        }
+        
+        .wallpaper-style {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .wallpaper-style-btn {
+            padding: 8px 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .wallpaper-style-btn.active {
+            background: #0078d7;
+            color: white;
+            border-color: #0078d7;
+        }
+        
+        /* Hava Durumu Ayarları */
+        .weather-manager {
+            display: none;
+        }
+        
+        .weather-manager.active {
+            display: block;
+        }
+        
+        /* Ayar Yönetimi */
+        .settings-manager {
+            display: none;
+        }
+        
+        .settings-manager.active {
+            display: block;
+        }
+        
+        /* Bildirim Stilleri */
+        .notification {
+            position: fixed;
+            bottom: 60px;
+            right: 20px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            border-radius: 5px;
+            z-index: 2000;
+            display: none;
+            max-width: 300px;
+        }
+        
+        .notification.show {
+            display: block;
+        }
+        
+        /* Hesap Makinesi Stilleri */
+        .calculator-app {
+            width: 100%;
+            height: 100%;
+            padding: 10px;
+            background-color: #ececec;
+        }
+        
+        .calculator-display {
+            width: 100%;
+            height: 50px;
+            margin-bottom: 10px;
+            text-align: right;
+            font-size: 24px;
+            padding: 5px;
+            box-sizing: border-box;
+            border: 1px solid #999;
+            background-color: white;
+        }
+        
+        .calculator-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-gap: 5px;
+        }
+        
+        .calculator-btn {
+            height: 40px;
+            font-size: 18px;
+            border: 1px solid #999;
+            border-radius: 3px;
+            cursor: pointer;
+            background-color: #f9f9f9;
+        }
+        
+        .calculator-btn:hover {
+            background-color: #e0e0e0;
+        }
+        
+        .calculator-btn:active {
+            background-color: #d0d0d0;
+        }
+        
+        .calculator-operator {
+            background-color: #f2a33c;
+        }
+        
+        .calculator-operator:hover {
+            background-color: #e0922c;
+        }
+        
+        .calculator-operator:active {
+            background-color: #d0821c;
+        }
+        
+        .calculator-equals {
+            background-color: #4caf50;
+            color: white;
+        }
+        
+        .calculator-equals:hover {
+            background-color: #3e9f42;
+        }
+        
+        .calculator-equals:active {
+            background-color: #308f34;
+        }
+        
+        .calculator-clear {
+            background-color: #f44336;
+            color: white;
+        }
+        
+        .calculator-clear:hover {
+            background-color: #e43326;
+        }
+        
+        .calculator-clear:active {
+            background-color: #d42316;
+        }
+        
+        /* Tarayıcı Stilleri */
+        .browser-window {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .browser-toolbar {
+            display: flex;
+            gap: 5px;
+            padding: 5px;
+            background: #f5f5f5;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .browser-toolbar button {
+            padding: 5px 10px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        
+        .browser-url {
+            flex: 1;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+        
+        .browser-content {
+            flex: 1;
+            border: none;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <!-- Hoş Geldin Ekranı -->
+    <div class="welcome-screen" id="welcomeScreen">
+        <div class="welcome-time" id="welcomeTime">00:00</div>
+        <div class="welcome-date" id="welcomeDate">1 Ocak 2023</div>
+    </div>
+    
+    <!-- Masaüstü -->
+    <div class="desktop" id="desktop" style="display: none;">
+        <!-- Uygulama Kısayolları -->
+        <div class="desktop-icons" id="desktopIcons">
+            <!-- Dinamik olarak eklenecek -->
+        </div>
+    </div>
+    
+    <!-- Taskbar -->
+    <div class="taskbar">
+        <div class="start-btn" id="startBtn">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/Windows_logo_-_2012_%28dark_blue%29.svg/1024px-Windows_logo_-_2012_%28dark_blue%29.svg.png" alt="Start">
+            <span>Başlat</span>
+        </div>
+        
+        <div class="taskbar-apps" id="taskbarApps">
+            <!-- Dinamik olarak eklenecek -->
+        </div>
+        
+        <div class="system-tray">
+            <div class="weather-info" id="weatherInfo">
+                <img src="assets/havadurumu.gif" class="weather-icon">
+                <span id="weatherText">Yükleniyor...</span>
+            </div>
+            <div class="tray-icon" id="timeDisplay">00:00</div>
+            <div class="tray-icon" id="dateDisplay">01/01/2023</div>
+        </div>
+    </div>
+    
+    <!-- Başlat Menüsü -->
+    <div class="start-menu" id="startMenu">
+        <div class="start-menu-header">
+            <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="User">
+            <span id="userName">Kullanıcı</span>
+        </div>
+        <div class="start-menu-list" id="startMenuList">
+            <!-- Dinamik olarak eklenecek -->
+        </div>
+    </div>
+    
+    <!-- Bildirim Alanı -->
+    <div class="notification" id="notification"></div>
+
+    <script>
+        // Ayar yönetimi
+        let settings = JSON.parse(localStorage.getItem('os_settings')) || {};
+        let apps = [];
+        let userName = localStorage.getItem('os_user_name') || null;
+        
+        // Varsayılan uygulamalar
+        const defaultApps = [
+            {
+                id: 'calculator',
+                title: 'Hesap Makinesi',
+                icon: 'assets/hesapmakinesi.png',
+                url: ''
+            },
+            {
+                id: 'browser',
+                title: 'Tarayıcı',
+                icon: 'assets/tarayici.png',
+                url: 'about:blank'
+            },
+            {
+                id: 'weather',
+                title: 'Hava Durumu',
+                icon: 'assets/havadurumu.gif',
+                url: 'https://www.accuweather.com/tr/tr/istanbul/318251/weather-forecast/318251'
+            },
+            {
+                id: 'control-panel',
+                title: 'Denetim Masası',
+                icon: 'assets/denetimmasasi.png',
+                url: ''
+            }
+        ];
+        
+        // Varsayılan ayarlar
+        const defaultSettings = {
+            wallpaper: 'https://4kwallpapers.com/images/wallpapers/windows-11-dark-mode-stock-official-3840x2400-5630.jpg',
+            wallpaperStyle: 'cover',
+            quickLaunchApps: [],
+            desktopIcons: [],
+            weatherCity: 'Istanbul'
+        };
+        
+        // Bildirim gösterme fonksiyonu
+        function showNotification(message, duration = 3000) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.classList.add('show');
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, duration);
+        }
+        
+        // Sayfa yüklendiğinde
+        window.addEventListener('load', function() {
+            // Kullanıcı adını al
+            if (!userName) {
+                userName = prompt('Lütfen kullanıcı adınızı girin:') || 'Kullanıcı';
+                localStorage.setItem('os_user_name', userName);
+            }
+            document.getElementById('userName').textContent = userName;
+            
+            // Ayarları yükle
+            loadSettings();
+            
+            // Saat güncelleme
+            updateClock();
+            setInterval(updateClock, 1000);
+            
+            // Hava durumu güncelleme
+            updateWeather();
+            setInterval(updateWeather, 600000); // Her 10 dakikada bir güncelle
+            
+            // Hoş geldin ekranını göster
+            document.getElementById('welcomeScreen').style.display = 'flex';
+            
+            // 3 saniye sonra masaüstünü göster
+            setTimeout(() => {
+                document.getElementById('welcomeScreen').style.display = 'none';
+                document.getElementById('desktop').style.display = 'flex';
+                
+                // Masaüstünü render et
+                renderDesktop();
+            }, 3000);
+        });
+        
+        // Ayarları yükle
+        function loadSettings() {
+            // Uygulamalar
+            apps = settings.apps || [...defaultApps];
+            
+            // Masaüstü ayarları
+            settings = {
+                ...defaultSettings,
+                ...settings
+            };
+            
+            // Arka planı ayarla
+            document.body.style.backgroundImage = `url('${settings.wallpaper}')`;
+            document.body.style.backgroundSize = settings.wallpaperStyle;
+            
+            // Masaüstü ikonlarını düzenle
+            if (settings.desktopIcons.length === 0) {
+                settings.desktopIcons = apps.map((app, index) => ({
+                    id: app.id,
+                    x: (index % 5) * 80, // 5 sütunlu grid
+                    y: Math.floor(index / 5) * 80
+                }));
+            }
+        }
+        
+        // Hava durumu güncelleme
+        async function updateWeather() {
+            const weatherText = document.getElementById('weatherText');
+            try {
+                const response = await fetch(`https://wttr.in/${settings.weatherCity}?format=%t+%c`);
+                const data = await response.text();
+                weatherText.textContent = `${settings.weatherCity}: ${data.trim()}`;
+            } catch (error) {
+                weatherText.textContent = 'Hava durumu alınamadı';
+            }
+        }
+        
+        // Masaüstünü render et
+        function renderDesktop() {
+            renderDesktopIcons();
+            renderTaskbar();
+            renderStartMenu();
+        }
+        
+        // Masaüstü ikonlarını render et
+        function renderDesktopIcons() {
+            const desktopIcons = document.getElementById('desktopIcons');
+            desktopIcons.innerHTML = '';
+            
+            // Kullanıcının özel ikon düzeni varsa onu kullan
+            const iconLayout = settings.desktopIcons;
+            
+            iconLayout.forEach(iconPos => {
+                const app = apps.find(a => a.id === iconPos.id);
+                if (!app) return;
+                
+                const icon = document.createElement('div');
+                icon.className = 'app-icon';
+                icon.dataset.appId = app.id;
+                icon.innerHTML = `
+                    <img src="${app.icon}" alt="${app.title}">
+                    <span>${app.title}</span>
+                `;
+                
+                // Konumlandırma
+                icon.style.gridColumnStart = Math.floor(iconPos.x / 80) + 1;
+                icon.style.gridRowStart = Math.floor(iconPos.y / 80) + 1;
+                
+                desktopIcons.appendChild(icon);
+                
+                // Tek tıklama işlevselliği
+                icon.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    openApp(app.id);
+                });
+            });
+        }
+        
+        // Taskbar'ı render et
+        function renderTaskbar() {
+            const taskbarApps = document.getElementById('taskbarApps');
+            taskbarApps.innerHTML = '';
+            
+            // Hızlı erişim uygulamalarını ekle
+            settings.quickLaunchApps.forEach(appId => {
+                const app = apps.find(a => a.id === appId);
+                if (!app) return;
+                
+                addTaskbarApp(app.id, app.title, app.icon);
+            });
+        }
+        
+        // Başlat Menüsünü render et
+        function renderStartMenu() {
+            const startMenuList = document.getElementById('startMenuList');
+            startMenuList.innerHTML = '';
+            
+            apps.forEach(app => {
+                const startMenuItem = document.createElement('div');
+                startMenuItem.className = 'start-menu-item';
+                startMenuItem.dataset.appId = app.id;
+                startMenuItem.innerHTML = `
+                    <img src="${app.icon}" alt="${app.title}">
+                    <span>${app.title}</span>
+                `;
+                startMenuList.appendChild(startMenuItem);
+                
+                startMenuItem.addEventListener('click', function() {
+                    openApp(app.id);
+                    document.getElementById('startMenu').classList.remove('visible');
+                });
+            });
+        }
+        
+        // Başlat menüsü butonu
+        document.getElementById('startBtn').addEventListener('click', function(e) {
+            e.stopPropagation();
+            const startMenu = document.getElementById('startMenu');
+            startMenu.classList.toggle('visible');
+        });
+        
+        // Tıklama ile menüyü kapatma
+        document.addEventListener('click', function(e) {
+            const startMenu = document.getElementById('startMenu');
+            const startBtn = document.getElementById('startBtn');
+            
+            if (!startMenu.contains(e.target) && !startBtn.contains(e.target)) {
+                startMenu.classList.remove('visible');
+            }
+        });
+        
+        // Ayarları kaydet
+        function saveSettings() {
+            localStorage.setItem('os_settings', JSON.stringify(settings));
+        }
+        
+        // Ayarları dışa aktar
+        function exportSettings() {
+            try {
+                const settingsData = localStorage.getItem('os_settings');
+                const userName = localStorage.getItem('os_user_name');
+                const exportData = {
+                    settings: settingsData,
+                    userName: userName
+                };
+                const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'os_settings.json';
+                a.click();
+                // URL'yi hemen temizlememek için gecikme ekle
+                setTimeout(() => {
+                    URL.revokeObjectURL(url);
+                }, 1000);
+                showNotification('Ayarlar başarıyla dışa aktarıldı!');
+            } catch (error) {
+                showNotification('Dışa aktarma başarısız: ' + error.message);
+            }
+        }
+        
+        // Ayarları içe aktar
+        function importSettings(event) {
+            const file = event.target.files[0];
+            if (!file) {
+                showNotification('Lütfen bir dosya seçin!');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (!data.settings || !data.userName) {
+                        throw new Error('Geçersiz ayar dosyası: Eksik veri.');
+                    }
+                    localStorage.setItem('os_settings', data.settings);
+                    localStorage.setItem('os_user_name', data.userName);
+                    // Ayarları yeniden yükle ve masaüstünü güncelle
+                    settings = JSON.parse(data.settings) || {};
+                    userName = data.userName;
+                    loadSettings();
+                    renderDesktop();
+                    document.getElementById('userName').textContent = userName;
+                    showNotification('Ayarlar başarıyla yüklendi!');
+                } catch (error) {
+                    showNotification('İçe aktarma başarısız: ' + error.message);
+                }
+            };
+            reader.onerror = function() {
+                showNotification('Dosya okuma hatası!');
+            };
+            reader.readAsText(file);
+        }
+        
+        // Uygulama yönetimi
+        let zIndex = 10;
+        let windowCount = 0;
+        const openWindows = {};
+        
+        function openApp(appId) {
+            // Uygulamayı bul
+            const app = apps.find(a => a.id === appId);
+            if (!app) return;
+            
+            // Denetim Masası özel
+            if (app.id === 'control-panel') {
+                openControlPanel();
+                return;
+            }
+            
+            // Hava durumu uygulaması özel
+            if (app.id === 'weather') {
+                openBrowser(app.url);
+                return;
+            }
+            
+            // Hesap makinesi uygulaması özel
+            if (app.id === 'calculator') {
+                openCalculator();
+                return;
+            }
+            
+            // Eğer URL varsa tarayıcıda aç
+            if (app.url) {
+                openBrowser(app.url);
+                return;
+            }
+            
+            // Eğer uygulama zaten açıksa odaklan
+            if (openWindows[appId]) {
+                focusWindow(appId);
+                return;
+            }
+            
+            // Varsayılan uygulama penceresi
+            const appWindow = document.createElement('div');
+            appWindow.className = 'app-window';
+            appWindow.id = `window-${appId}-${windowCount++}`;
+            appWindow.dataset.appId = appId;
+            appWindow.style.width = '600px';
+            appWindow.style.height = '400px';
+            appWindow.style.top = '100px';
+            appWindow.style.left = `${100 + (windowCount * 20)}px`;
+            
+            appWindow.innerHTML = `
+                <div class="app-header">
+                    <div class="app-title">${app.title}</div>
+                    <div class="window-controls">
+                        <div class="window-btn minimize-btn">−</div>
+                        <div class="window-btn maximize-btn">□</div>
+                        <div class="window-btn close-btn">×</div>
+                    </div>
+                </div>
+                <div class="app-content">
+                    <div style="padding: 20px; text-align: center;">
+                        <h2>${app.title}</h2>
+                        <p>Bu bir uygulama simülasyonudur.</p>
+                        <div style="margin-top: 20px;">
+                            <input type="text" id="appUrlInput" placeholder="URL girin" style="width: 70%; padding: 8px;">
+                            <button id="appUrlGo" style="padding: 8px 15px; margin-left: 5px;">Git</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(appWindow);
+            openWindows[appId] = appWindow;
+            
+            // Pencere kontrolleri
+            const header = appWindow.querySelector('.app-header');
+            const minimizeBtn = appWindow.querySelector('.minimize-btn');
+            const maximizeBtn = appWindow.querySelector('.maximize-btn');
+            const closeBtn = appWindow.querySelector('.close-btn');
+            const urlInput = appWindow.querySelector('#appUrlInput');
+            const urlGo = appWindow.querySelector('#appUrlGo');
+            
+            // URL açma işlevi
+            urlGo.addEventListener('click', function() {
+                const url = urlInput.value.trim();
+                if (url) {
+                    openBrowser(url);
+                }
+            });
+            
+            // Sürükleme işlevselliği
+            let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+            header.onmousedown = dragMouseDown;
+            
+            function dragMouseDown(e) {
+                e = e || window.event;
+                e.preventDefault();
+                pos3 = e.clientX;
+                pos4 = e.clientY;
+                document.onmouseup = closeDragElement;
+                document.onmousemove = elementDrag;
+                focusWindow(appId);
+            }
+            
+            function elementDrag(e) {
+                e = e || window.event;
+                e.preventDefault();
+                pos1 = pos3 - e.clientX;
+                pos2 = pos4 - e.clientY;
+                pos3 = e.clientX;
+                pos4 = e.clientY;
+                
+                // Pencereyi taşı
+                appWindow.style.top = (appWindow.offsetTop - pos2) + "px";
+                appWindow.style.left = (appWindow.offsetLeft - pos1) + "px";
+            }
+            
+            function closeDragElement() {
+                document.onmouseup = null;
+                document.onmousemove = null;
+            }
+            
+            // Pencere kontrolleri
+            minimizeBtn.addEventListener('click', function() {
+                appWindow.style.display = 'none';
+                updateTaskbar(appId, false);
+            });
+            
+            maximizeBtn.addEventListener('click', function() {
+                appWindow.classList.toggle('maximized');
+            });
+            
+            closeBtn.addEventListener('click', function() {
+                appWindow.remove();
+                delete openWindows[appId];
+                removeTaskbarApp(appId);
+            });
+            
+            // Pencereye odaklan
+            focusWindow(appId);
+            
+            // Taskbar'a ekle
+            addTaskbarApp(appId, app.title, app.icon);
+        }
+        
+        // Denetim Masası penceresi
+        function openControlPanel() {
+            const appId = 'control-panel';
+            
+            // Eğer zaten açıksa odaklan
+            if (openWindows[appId]) {
+                focusWindow(appId);
+                return;
+            }
+            
+            const appWindow = document.createElement('div');
+            appWindow.className = 'app-window';
+            appWindow.id = `window-${appId}`;
+            appWindow.dataset.appId = appId;
+            appWindow.style.width = '800px';
+            appWindow.style.height = '600px';
+            appWindow.style.top = '50px';
+            appWindow.style.left = '100px';
+            
+            appWindow.innerHTML = `
+                <div class="app-header">
+                    <div class="app-title">Denetim Masası</div>
+                    <div class="window-controls">
+                        <div class="window-btn minimize-btn">−</div>
+                        <div class="window-btn maximize-btn">□</div>
+                        <div class="window-btn close-btn">×</div>
+                    </div>
+                </div>
+                <div class="control-panel">
+                    <div class="control-sidebar">
+                        <div class="control-menu-item active" data-tab="app-manager">Uygulama Yönetimi</div>
+                        <div class="control-menu-item" data-tab="wallpaper-manager">Arka Plan Ayarları</div>
+                        <div class="control-menu-item" data-tab="weather-manager">Hava Durumu Ayarları</div>
+                        <div class="control-menu-item" data-tab="settings-manager">Ayar Yönetimi</div>
+                    </div>
+                    <div class="control-content">
+                        <!-- Uygulama Yönetimi -->
+                        <div class="app-manager active" id="app-manager">
+                            <div class="app-form">
+                                <div class="form-group">
+                                    <label for="app-id">Uygulama ID</label>
+                                    <input type="text" id="app-id" placeholder="Örnek: calculator">
+                                </div>
+                                <div class="form-group">
+                                    <label for="app-title">Uygulama Adı</label>
+                                    <input type="text" id="app-title" placeholder="Örnek: Hesap Makinesi">
+                                </div>
+                                <div class="form-group">
+                                    <label for="app-icon">Simge URL</label>
+                                    <input type="text" id="app-icon" placeholder="Örnek: assets/icon.png">
+                                </div>
+                                <div class="form-group">
+                                    <label for="app-url">URL Adres (Tarayıcı için)</label>
+                                    <input type="text" id="app-url" placeholder="Örnek: https://ornek.com">
+                                </div>
+                                <div class="form-actions">
+                                    <button id="add-app" class="btn btn-primary">Ekle</button>
+                                    <button id="update-app" class="btn btn-secondary" disabled>Güncelle</button>
+                                    <button id="delete-app" class="btn btn-danger" disabled>Sil</button>
+                                    <button id="clear-form" class="btn btn-secondary">Temizle</button>
+                                </div>
+                            </div>
+                            <div class="app-list" id="app-list">
+                                <!-- Uygulamalar burada listelenecek -->
+                            </div>
+                        </div>
+                        
+                        <!-- Arka Plan Yönetimi -->
+                        <div class="wallpaper-manager" id="wallpaper-manager">
+                            <div class="wallpaper-preview" id="wallpaper-preview" style="background-image: url('${settings.wallpaper}')"></div>
+                            <div class="form-group">
+                                <label for="wallpaper-url">Arka Plan URL</label>
+                                <input type="text" id="wallpaper-url" placeholder="https://example.com/wallpaper.jpg">
+                                <button id="browse-wallpaper" class="btn btn-secondary" style="margin-top: 5px;">Gözat</button>
+                                <input type="file" id="wallpaper-file" accept="image/*" style="display: none;">
+                            </div>
+                            <div class="form-group">
+                                <label>Görüntüleme Stili</label>
+                                <div class="wallpaper-style">
+                                    <div class="wallpaper-style-btn ${settings.wallpaperStyle === 'cover' ? 'active' : ''}" data-style="cover">Doldur</div>
+                                    <div class="wallpaper-style-btn ${settings.wallpaperStyle === 'contain' ? 'active' : ''}" data-style="contain">Sığdır</div>
+                                    <div class="wallpaper-style-btn ${settings.wallpaperStyle === 'auto' ? 'active' : ''}" data-style="auto">Otomatik</div>
+                                </div>
+                            </div>
+                            <div class="form-actions">
+                                <button id="apply-wallpaper" class="btn btn-primary">Uygula</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Hava Durumu Ayarları -->
+                        <div class="weather-manager" id="weather-manager">
+                            <div class="form-group">
+                                <label for="weather-city">Şehir</label>
+                                <input type="text" id="weather-city" value="${settings.weatherCity}" placeholder="Örnek: Istanbul">
+                            </div>
+                            <div class="form-actions">
+                                <button id="apply-weather" class="btn btn-primary">Uygula</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Ayar Yönetimi -->
+                        <div class="settings-manager" id="settings-manager">
+                            <div class="form-group">
+                                <label>Ayarları Dışa Aktar</label>
+                                <button id="export-settings" class="btn btn-primary">Dışa Aktar</button>
+                            </div>
+                            <div class="form-group">
+                                <label>Ayarları İçe Aktar</label>
+                                <input type="file" id="import-settings" accept=".json">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(appWindow);
+            openWindows[appId] = appWindow;
+            
+            // Pencere kontrolleri
+            const header = appWindow.querySelector('.app-header');
+            const minimizeBtn = appWindow.querySelector('.minimize-btn');
+            const maximizeBtn = appWindow.querySelector('.maximize-btn');
+            const closeBtn = appWindow.querySelector('.close-btn');
+            
+            // Menü sekmeleri
+            const menuItems = appWindow.querySelectorAll('.control-menu-item');
+            menuItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    // Tüm sekmeleri pasif yap
+                    menuItems.forEach(i => i.classList.remove('active'));
+                    // Bu sekmeyi aktif yap
+                    this.classList.add('active');
+                    
+                    // Tüm içerikleri gizle
+                    appWindow.querySelectorAll('.app-manager, .wallpaper-manager, .weather-manager, .settings-manager').forEach(content => {
+                        content.classList.remove('active');
+                    });
+                    
+                    // Seçili içeriği göster
+                    const tabId = this.getAttribute('data-tab');
+                    const targetContent = appWindow.querySelector(`#${tabId}`);
+                    if (targetContent) {
+                        targetContent.classList.add('active');
+                    }
+                });
+            });
+            
+            // Uygulama Yönetimi
+            setupAppManager(appWindow);
+            
+            // Arka Plan Yönetimi
+            setupWallpaperManager(appWindow);
+            
+            // Hava Durumu Ayarları
+            setupWeatherManager(appWindow);
+            
+            // Ayar Yönetimi
+            setupSettingsManager(appWindow);
+            
+            // Sürükleme işlevselliği
+            let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+            header.onmousedown = dragMouseDown;
+            
+            function dragMouseDown(e) {
+                e = e || window.event;
+                e.preventDefault();
+                pos3 = e.clientX;
+                pos4 = e.clientY;
+                document.onmouseup = closeDragElement;
+                document.onmousemove = elementDrag;
+                focusWindow(appId);
+            }
+            
+            function elementDrag(e) {
+                e = e || window.event;
+                e.preventDefault();
+                pos1 = pos3 - e.clientX;
+                pos2 = pos4 - e.clientY;
+                pos3 = e.clientX;
+                pos4 = e.clientY;
+                
+                // Pencereyi taşı
+                appWindow.style.top = (appWindow.offsetTop - pos2) + "px";
+                appWindow.style.left = (appWindow.offsetLeft - pos1) + "px";
+            }
+            
+            function closeDragElement() {
+                document.onmouseup = null;
+                document.onmousemove = null;
+            }
+            
+            // Pencere kontrolleri
+            minimizeBtn.addEventListener('click', function() {
+                appWindow.style.display = 'none';
+                updateTaskbar(appId, false);
+            });
+            
+            maximizeBtn.addEventListener('click', function() {
+                appWindow.classList.toggle('maximized');
+            });
+            
+            closeBtn.addEventListener('click', function() {
+                appWindow.remove();
+                delete openWindows[appId];
+                removeTaskbarApp(appId);
+            });
+            
+            // Pencereye odaklan
+            focusWindow(appId);
+            
+            // Taskbar'a ekle
+            addTaskbarApp(appId, 'Denetim Masası', 'assets/denetimmasasi.png');
+        }
+        
+        // Uygulama Yöneticisi kurulumu
+        function setupAppManager(appWindow) {
+            const appIdInput = appWindow.querySelector('#app-id');
+            const appTitleInput = appWindow.querySelector('#app-title');
+            const appIconInput = appWindow.querySelector('#app-icon');
+            const appUrlInput = appWindow.querySelector('#app-url');
+            const addAppBtn = appWindow.querySelector('#add-app');
+            const updateAppBtn = appWindow.querySelector('#update-app');
+            const deleteAppBtn = appWindow.querySelector('#delete-app');
+            const clearFormBtn = appWindow.querySelector('#clear-form');
+            const appList = appWindow.querySelector('#app-list');
+            
+            // Uygulama listesini render et
+            function renderAppList() {
+                appList.innerHTML = '';
+                apps.forEach(app => {
+                    const appItem = document.createElement('div');
+                    appItem.className = 'app-item';
+                    appItem.dataset.appId = app.id;
+                    appItem.innerHTML = `
+                        <img src="${app.icon}" alt="${app.title}">
+                        <div>
+                            <strong>${app.title}</strong>
+                            <div style="font-size: 0.8rem; color: #666;">ID: ${app.id}</div>
+                            ${app.url ? `<div style="font-size: 0.8rem; color: #666;">URL: ${app.url}</div>` : ''}
+                        </div>
+                    `;
+                    appList.appendChild(appItem);
+                    
+                    appItem.addEventListener('click', function() {
+                        // Seçili uygulamayı formda göster
+                        const selectedApp = apps.find(a => a.id === app.id);
+                        if (selectedApp) {
+                            appIdInput.value = selectedApp.id;
+                            appTitleInput.value = selectedApp.title;
+                            appIconInput.value = selectedApp.icon;
+                            appUrlInput.value = selectedApp.url || '';
+                            
+                            // Buton durumlarını güncelle
+                            addAppBtn.disabled = true;
+                            updateAppBtn.disabled = false;
+                            deleteAppBtn.disabled = false;
+                        }
+                    });
+                });
+            }
+            
+            // Uygulama ekle
+            addAppBtn.addEventListener('click', function() {
+                const id = appIdInput.value.trim();
+                const title = appTitleInput.value.trim();
+                const icon = appIconInput.value.trim();
+                const url = appUrlInput.value.trim();
+                
+                if (!id || !title || !icon) {
+                    showNotification('Lütfen zorunlu alanları doldurun (ID, Ad, Simge)');
+                    return;
+                }
+                
+                // ID kontrolü
+                if (apps.some(app => app.id === id)) {
+                    showNotification('Bu ID ile zaten bir uygulama var!');
+                    return;
+                }
+                
+                // Yeni uygulama ekle
+                apps.push({
+                    id,
+                    title,
+                    icon,
+                    url
+                });
+                
+                // Yeni uygulamayı masaüstüne ekle
+                const maxRow = Math.max(...settings.desktopIcons.map(icon => Math.floor(icon.y / 80)), -1) + 1;
+                const lastRowIcons = settings.desktopIcons.filter(icon => Math.floor(icon.y / 80) === maxRow);
+                const col = lastRowIcons.length % 5;
+                const row = Math.floor(lastRowIcons.length / 5) + maxRow;
+                
+                settings.desktopIcons.push({
+                    id,
+                    x: col * 80,
+                    y: row * 80
+                });
+                
+                settings.apps = apps; // Uygulamaları ayarlara kaydet
+                saveSettings();
+                renderDesktopIcons();
+                renderAppList();
+                renderStartMenu();
+                clearAppForm();
+                showNotification('Uygulama başarıyla eklendi!');
+            });
+            
+            // Uygulama güncelle
+            updateAppBtn.addEventListener('click', function() {
+                const id = appIdInput.value.trim();
+                const title = appTitleInput.value.trim();
+                const icon = appIconInput.value.trim();
+                const url = appUrlInput.value.trim();
+                
+                if (!id || !title || !icon) {
+                    showNotification('Lütfen zorunlu alanları doldurun (ID, Ad, Simge)');
+                    return;
+                }
+                
+                // Uygulamayı bul ve güncelle
+                const appIndex = apps.findIndex(app => app.id === id);
+                if (appIndex !== -1) {
+                    apps[appIndex] = {
+                        id,
+                        title,
+                        icon,
+                        url
+                    };
+                    
+                    settings.apps = apps; // Uygulamaları ayarlara kaydet
+                    saveSettings();
+                    renderDesktopIcons();
+                    renderAppList();
+                    renderStartMenu();
+                    clearAppForm();
+                    showNotification('Uygulama başarıyla güncellendi!');
+                }
+            });
+            
+            // Uygulama sil
+            deleteAppBtn.addEventListener('click', function() {
+                const id = appIdInput.value.trim();
+                
+                if (!id) return;
+                
+                if (confirm('Bu uygulamayı silmek istediğinize emin misiniz?')) {
+                    apps = apps.filter(app => app.id !== id);
+                    settings.desktopIcons = settings.desktopIcons.filter(icon => icon.id !== id);
+                    settings.quickLaunchApps = settings.quickLaunchApps.filter(appId => appId !== id);
+                    settings.apps = apps; // Uygulamaları ayarlara kaydet
+                    saveSettings();
+                    renderDesktopIcons();
+                    renderTaskbar();
+                    renderAppList();
+                    renderStartMenu();
+                    clearAppForm();
+                    showNotification('Uygulama başarıyla silindi!');
+                }
+            });
+            
+            // Formu temizle
+            clearFormBtn.addEventListener('click', clearAppForm);
+            
+            function clearAppForm() {
+                appIdInput.value = '';
+                appTitleInput.value = '';
+                appIconInput.value = '';
+                appUrlInput.value = '';
+                
+                addAppBtn.disabled = false;
+                updateAppBtn.disabled = true;
+                deleteAppBtn.disabled = true;
+            }
+            
+            // İlk render
+            renderAppList();
+        }
+        
+        // Arka Plan Yöneticisi kurulumu
+        function setupWallpaperManager(appWindow) {
+            const wallpaperUrlInput = appWindow.querySelector('#wallpaper-url');
+            const browseWallpaperBtn = appWindow.querySelector('#browse-wallpaper');
+            const wallpaperFileInput = appWindow.querySelector('#wallpaper-file');
+            const wallpaperPreview = appWindow.querySelector('#wallpaper-preview');
+            const styleButtons = appWindow.querySelectorAll('.wallpaper-style-btn');
+            const applyWallpaperBtn = appWindow.querySelector('#apply-wallpaper');
+            
+            // Gözat butonu
+            browseWallpaperBtn.addEventListener('click', function() {
+                wallpaperFileInput.click();
+            });
+            
+            // Dosya seçildiğinde
+            wallpaperFileInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        wallpaperUrlInput.value = event.target.result;
+                        wallpaperPreview.style.backgroundImage = `url('${event.target.result}')`;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+            
+            // URL değiştiğinde
+            wallpaperUrlInput.addEventListener('input', function() {
+                wallpaperPreview.style.backgroundImage = `url('${this.value}')`;
+            });
+            
+            // Stil butonları
+            styleButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    styleButtons.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+            
+            // Uygula butonu
+            applyWallpaperBtn.addEventListener('click', function() {
+                const url = wallpaperUrlInput.value.trim();
+                const style = appWindow.querySelector('.wallpaper-style-btn.active').getAttribute('data-style');
+                
+                if (!url) {
+                    showNotification('Lütfen bir arka plan URL\'si girin veya dosya seçin!');
+                    return;
+                }
+                
+                // Ayarları güncelle
+                settings.wallpaper = url;
+                settings.wallpaperStyle = style;
+                
+                // Masaüstüne uygula
+                document.body.style.backgroundImage = `url('${url}')`;
+                document.body.style.backgroundSize = style;
+                
+                // Kaydet
+                saveSettings();
+                
+                showNotification('Arka plan başarıyla değiştirildi!');
+            });
+        }
+        
+        // Hava Durumu Yöneticisi kurulumu
+        function setupWeatherManager(appWindow) {
+            const weatherCityInput = appWindow.querySelector('#weather-city');
+            const applyWeatherBtn = appWindow.querySelector('#apply-weather');
+            
+            applyWeatherBtn.addEventListener('click', function() {
+                const city = weatherCityInput.value.trim();
+                if (!city) {
+                    showNotification('Lütfen bir şehir adı girin!');
+                    return;
+                }
+                
+                settings.weatherCity = city;
+                saveSettings();
+                updateWeather();
+                showNotification('Hava durumu şehri güncellendi!');
+            });
+        }
+        
+        // Ayar Yöneticisi kurulumu
+        function setupSettingsManager(appWindow) {
+            const exportSettingsBtn = appWindow.querySelector('#export-settings');
+            const importSettingsInput = appWindow.querySelector('#import-settings');
+            
+            if (exportSettingsBtn && importSettingsInput) {
+                exportSettingsBtn.addEventListener('click', exportSettings);
+                importSettingsInput.addEventListener('change', importSettings);
+            } else {
+                showNotification('Ayar yönetimi bileşenleri yüklenemedi!');
+            }
+        }
+        
+        // Hesap makinesi penceresi aç
+        function openCalculator() {
+            const appId = 'calculator';
+            
+            // Eğer hesap makinesi zaten açıksa odaklan
+            if (openWindows[appId]) {
+                focusWindow(appId);
+                return;
+            }
+            
+            const appWindow = document.createElement('div');
+            appWindow.className = 'app-window';
+            appWindow.id = `window-${appId}`;
+            appWindow.dataset.appId = appId;
+            appWindow.style.width = '280px';
+            appWindow.style.height = '400px';
+            appWindow.style.top = '100px';
+            appWindow.style.left = '100px';
+            
+            appWindow.innerHTML = `
+                <div class="app-header">
+                    <div class="app-title">Hesap Makinesi</div>
+                    <div class="window-controls">
+                        <div class="window-btn minimize-btn">−</div>
+                        <div class="window-btn maximize-btn">□</div>
+                        <div class="window-btn close-btn">×</div>
+                    </div>
+                </div>
+                <div class="calculator-app">
+                    <input type="text" class="calculator-display" id="calcDisplay" readonly>
+                    <div class="calculator-buttons">
+                        <button onclick="calcClear()" class="calculator-btn calculator-clear">C</button>
+                        <button onclick="calcBackspace()" class="calculator-btn">←</button>
+                        <button onclick="calcAppend('%')" class="calculator-btn">%</button>
+                        <button onclick="calcAppend('/')" class="calculator-btn calculator-operator">/</button>
+                        
+                        <button onclick="calcAppend('7')" class="calculator-btn">7</button>
+                        <button onclick="calcAppend('8')" class="calculator-btn">8</button>
+                        <button onclick="calcAppend('9')" class="calculator-btn">9</button>
+                        <button onclick="calcAppend('*')" class="calculator-btn calculator-operator">*</button>
+                        
+                        <button onclick="calcAppend('4')" class="calculator-btn">4</button>
+                        <button onclick="calcAppend('5')" class="calculator-btn">5</button>
+                        <button onclick="calcAppend('6')" class="calculator-btn">6</button>
+                        <button onclick="calcAppend('-')" class="calculator-btn calculator-operator">-</button>
+                        
+                        <button onclick="calcAppend('1')" class="calculator-btn">1</button>
+                        <button onclick="calcAppend('2')" class="calculator-btn">2</button>
+                        <button onclick="calcAppend('3')" class="calculator-btn">3</button>
+                        <button onclick="calcAppend('+')" class="calculator-btn calculator-operator">+</button>
+                        
+                        <button onclick="calcAppend('0')" class="calculator-btn" style="grid-column: span 2;">0</button>
+                        <button onclick="calcAppend('.')" class="calculator-btn">.</button>
+                        <button onclick="calcCalculate()" class="calculator-btn calculator-equals">=</button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(appWindow);
+            openWindows[appId] = appWindow;
+            
+            // Pencere kontrolleri
+            const header = appWindow.querySelector('.app-header');
+            const minimizeBtn = appWindow.querySelector('.minimize-btn');
+            const maximizeBtn = appWindow.querySelector('.maximize-btn');
+            const closeBtn = appWindow.querySelector('.close-btn');
+            
+            // Sürükleme işlevselliği
+            let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+            header.onmousedown = dragMouseDown;
+            
+            function dragMouseDown(e) {
+                e = e || window.event;
+                e.preventDefault();
+                pos3 = e.clientX;
+                pos4 = e.clientY;
+                document.onmouseup = closeDragElement;
+                document.onmousemove = elementDrag;
+                focusWindow(appId);
+            }
+            
+            function elementDrag(e) {
+                e = e || window.event;
+                e.preventDefault();
+                pos1 = pos3 - e.clientX;
+                pos2 = pos4 - e.clientY;
+                pos3 = e.clientX;
+                pos4 = e.clientY;
+                
+                // Pencereyi taşı
+                appWindow.style.top = (appWindow.offsetTop - pos2) + "px";
+                appWindow.style.left = (appWindow.offsetLeft - pos1) + "px";
+            }
+            
+            function closeDragElement() {
+                document.onmouseup = null;
+                document.onmousemove = null;
+            }
+            
+            // Pencere kontrolleri
+            minimizeBtn.addEventListener('click', function() {
+                appWindow.style.display = 'none';
+                updateTaskbar(appId, false);
+            });
+            
+            maximizeBtn.addEventListener('click', function() {
+                appWindow.classList.toggle('maximized');
+            });
+            
+            closeBtn.addEventListener('click', function() {
+                appWindow.remove();
+                delete openWindows[appId];
+                removeTaskbarApp(appId);
+            });
+            
+            // Pencereye odaklan
+            focusWindow(appId);
+            
+            // Taskbar'a ekle
+            addTaskbarApp(appId, 'Hesap Makinesi', 'assets/hesapmakinesi.png');
+        }
+        
+        // Tarayıcı penceresi aç
+        function openBrowser(url) {
+            const appId = 'browser-' + Date.now();
+            const appWindow = document.createElement('div');
+            appWindow.className = 'app-window';
+            appWindow.id = `window-${appId}`;
+            appWindow.dataset.appId = appId;
+            appWindow.style.width = '800px';
+            appWindow.style.height = '600px';
+            appWindow.style.top = '50px';
+            appWindow.style.left = '100px';
+            
+            appWindow.innerHTML = `
+                <div class="app-header">
+                    <div class="app-title">Tarayıcı - ${url}</div>
+                    <div class="window-controls">
+                        <div class="window-btn minimize-btn">−</div>
+                        <div class="window-btn maximize-btn">□</div>
+                        <div class="window-btn close-btn">×</div>
+                    </div>
+                </div>
+                <div class="browser-window">
+                    <div class="browser-toolbar">
+                        <button class="browser-back">←</button>
+                        <button class="browser-forward">→</button>
+                        <input type="text" class="browser-url" value="${url}">
+                        <button class="browser-go">Git</button>
+                    </div>
+                    <iframe src="${url}" class="browser-content"></iframe>
+                </div>
+            `;
+            
+            document.body.appendChild(appWindow);
+            openWindows[appId] = appWindow;
+            
+            // Pencere kontrolleri
+            const header = appWindow.querySelector('.app-header');
+            const minimizeBtn = appWindow.querySelector('.minimize-btn');
+            const maximizeBtn = appWindow.querySelector('.maximize-btn');
+            const closeBtn = appWindow.querySelector('.close-btn');
+            const urlInput = appWindow.querySelector('.browser-url');
+            const goBtn = appWindow.querySelector('.browser-go');
+            const backBtn = appWindow.querySelector('.browser-back');
+            const forwardBtn = appWindow.querySelector('.browser-forward');
+            const iframe = appWindow.querySelector('.browser-content');
+            
+            // URL değişikliği
+            goBtn.addEventListener('click', function() {
+                let url = urlInput.value.trim();
+                if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                    url = 'https://' + url;
+                }
+                iframe.src = url;
+                appWindow.querySelector('.app-title').textContent = `Tarayıcı - ${url}`;
+            });
+            
+            // Geri ve ileri butonları
+            backBtn.addEventListener('click', function() {
+                iframe.contentWindow.history.back();
+            });
+            
+            forwardBtn.addEventListener('click', function() {
+                iframe.contentWindow.history.forward();
+            });
+            
+            // Sürükleme işlevselliği
+            let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+            header.onmousedown = dragMouseDown;
+            
+            function dragMouseDown(e) {
+                e = e || window.event;
+                e.preventDefault();
+                pos3 = e.clientX;
+                pos4 = e.clientY;
+                document.onmouseup = closeDragElement;
+                document.onmousemove = elementDrag;
+                focusWindow(appId);
+            }
+            
+            function elementDrag(e) {
+                e = e || window.event;
+                e.preventDefault();
+                pos1 = pos3 - e.clientX;
+                pos2 = pos4 - e.clientY;
+                pos3 = e.clientX;
+                pos4 = e.clientY;
+                
+                // Pencereyi taşı
+                appWindow.style.top = (appWindow.offsetTop - pos2) + "px";
+                appWindow.style.left = (appWindow.offsetLeft - pos1) + "px";
+            }
+            
+            function closeDragElement() {
+                document.onmouseup = null;
+                document.onmousemove = null;
+            }
+            
+            // Pencere kontrolleri
+            minimizeBtn.addEventListener('click', function() {
+                appWindow.style.display = 'none';
+                updateTaskbar(appId, false);
+            });
+            
+            maximizeBtn.addEventListener('click', function() {
+                appWindow.classList.toggle('maximized');
+            });
+            
+            closeBtn.addEventListener('click', function() {
+                appWindow.remove();
+                delete openWindows[appId];
+                removeTaskbarApp(appId);
+            });
+            
+            // Pencereye odaklan
+            focusWindow(appId);
+            
+            // Taskbar'a ekle
+            addTaskbarApp(appId, 'Tarayıcı', 'assets/tarayici.png');
+        }
+        
+        function focusWindow(appId) {
+            const appWindow = openWindows[appId];
+            if (!appWindow) return;
+            
+            // Tüm pencerelerin z-index'ini düşür
+            document.querySelectorAll('.app-window').forEach(win => {
+                win.classList.remove('active');
+                win.style.zIndex = '5';
+            });
+            
+            // Bu pencereyi öne getir
+            appWindow.classList.add('active');
+            appWindow.style.zIndex = zIndex++;
+            
+            // Taskbar'ı güncelle
+            updateTaskbar(appId, true);
+        }
+        
+        // Taskbar işlevleri
+        function addTaskbarApp(appId, title, icon) {
+            const taskbarApps = document.getElementById('taskbarApps');
+            let taskbarItem = document.querySelector(`.taskbar-app[data-app-id="${appId}"]`);
+            
+            if (!taskbarItem) {
+                taskbarItem = document.createElement('div');
+                taskbarItem.className = 'taskbar-app';
+                taskbarItem.dataset.appId = appId;
+                taskbarItem.innerHTML = `
+                    <img src="${icon}" alt="${title}">
+                    <span>${title}</span>
+                `;
+                taskbarApps.appendChild(taskbarItem);
+                
+                taskbarItem.addEventListener('click', function() {
+                    const window = openWindows[appId];
+                    if (window) {
+                        if (window.style.display === 'none') {
+                            window.style.display = 'flex';
+                            focusWindow(appId);
+                        } else if (document.querySelector(`.app-window[data-app-id="${appId}"]`) === document.querySelector('.app-window.active')) {
+                            window.style.display = 'none';
+                            taskbarItem.classList.remove('active');
+                        } else {
+                            focusWindow(appId);
+                        }
+                    }
+                });
+            }
+            
+            taskbarItem.classList.add('active');
+        }
+        
+        function updateTaskbar(appId, isActive) {
+            const taskbarItem = document.querySelector(`.taskbar-app[data-app-id="${appId}"]`);
+            if (taskbarItem) {
+                taskbarItem.classList.toggle('active', isActive);
+            }
+        }
+        
+        function removeTaskbarApp(appId) {
+            const taskbarItem = document.querySelector(`.taskbar-app[data-app-id="${appId}"]`);
+            if (taskbarItem) {
+                taskbarItem.remove();
+            }
+        }
+        
+        // Saat ve tarih güncelleme
+        function updateClock() {
+            const now = new Date();
+            
+            // Hoş geldin ekranı
+            document.getElementById('welcomeTime').textContent = now.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+            document.getElementById('welcomeDate').textContent = now.toLocaleDateString('tr-TR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+            
+            // Taskbar
+            document.getElementById('timeDisplay').textContent = now.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+            document.getElementById('dateDisplay').textContent = now.toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        }
+        
+        // Hesap makinesi işlevleri
+        let calcDisplayValue = '0';
+        
+        function calcAppend(value) {
+            const display = document.getElementById('calcDisplay');
+            if (!display) return;
+            
+            if (calcDisplayValue === '0' && value !== '.') {
+                calcDisplayValue = value;
+            } else {
+                calcDisplayValue += value;
+            }
+            display.value = calcDisplayValue;
+        }
+        
+        function calcBackspace() {
+            const display = document.getElementById('calcDisplay');
+            if (!display) return;
+            
+            calcDisplayValue = calcDisplayValue.slice(0, -1);
+            if (calcDisplayValue === '') {
+                calcDisplayValue = '0';
+            }
+            display.value = calcDisplayValue;
+        }
+        
+        function calcClear() {
+            const display = document.getElementById('calcDisplay');
+            if (!display) return;
+            
+            calcDisplayValue = '0';
+            display.value = calcDisplayValue;
+        }
+        
+        function calcCalculate() {
+            const display = document.getElementById('calcDisplay');
+            if (!display) return;
+            
+            try {
+                calcDisplayValue = eval(calcDisplayValue).toString();
+                display.value = calcDisplayValue;
+            } catch (e) {
+                display.value = 'Hata';
+                calcDisplayValue = '0';
+            }
+        }
+    </script>
+</body>
+</html>
